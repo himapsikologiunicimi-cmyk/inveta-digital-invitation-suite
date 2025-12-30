@@ -302,17 +302,31 @@ Mohon dicek dan diproses. Terima kasih.`
                           : "QRIS"}
                       </span>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Subtotal</span>
-                      <span>{formatPrice(orderData.subtotal)}</span>
+                    <div className="flex justify-between py-2 border-b border-border">
+                      <span className="text-muted-foreground">Harga Paket ({orderData.theme.name})</span>
+                      <span>{formatPrice(orderData.theme.price)}</span>
                     </div>
+                    {orderData.addOnDetails && orderData.addOnDetails.length > 0 && (
+                      <div className="py-2 border-b border-border space-y-1">
+                        {orderData.addOnDetails.map((addon) => (
+                          <div key={addon.id} className="flex justify-between">
+                            <span className="text-muted-foreground">{addon.name}</span>
+                            <span>{formatPrice(addon.price)}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                     {orderData.discount > 0 && (
-                      <div className="flex justify-between text-primary">
+                      <div className="flex justify-between py-2 border-b border-border text-primary">
                         <span>Diskon</span>
                         <span>- {formatPrice(orderData.discount)}</span>
                       </div>
                     )}
-                    <div className="flex justify-between">
+                    <div className="flex justify-between py-2 border-b border-border">
+                      <span className="text-muted-foreground">Subtotal</span>
+                      <span>{formatPrice(orderData.subtotal)}</span>
+                    </div>
+                    <div className="flex justify-between py-2 border-b border-border">
                       <span className="text-muted-foreground">Kode Unik</span>
                       <span>{formatPrice(orderData.uniqueCode)}</span>
                     </div>
