@@ -109,6 +109,60 @@ export type Database = {
         }
         Relationships: []
       }
+      orders: {
+        Row: {
+          couple_names: string
+          couple_photo_url: string | null
+          created_at: string
+          customer_name: string
+          id: string
+          invitation_link: string | null
+          notes: string | null
+          payment_amount: number | null
+          payment_date: string | null
+          payment_proof_url: string | null
+          status: Database["public"]["Enums"]["order_status"]
+          theme_id: number
+          theme_name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          couple_names: string
+          couple_photo_url?: string | null
+          created_at?: string
+          customer_name: string
+          id?: string
+          invitation_link?: string | null
+          notes?: string | null
+          payment_amount?: number | null
+          payment_date?: string | null
+          payment_proof_url?: string | null
+          status?: Database["public"]["Enums"]["order_status"]
+          theme_id: number
+          theme_name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          couple_names?: string
+          couple_photo_url?: string | null
+          created_at?: string
+          customer_name?: string
+          id?: string
+          invitation_link?: string | null
+          notes?: string | null
+          payment_amount?: number | null
+          payment_date?: string | null
+          payment_proof_url?: string | null
+          status?: Database["public"]["Enums"]["order_status"]
+          theme_id?: number
+          theme_name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string | null
@@ -174,6 +228,11 @@ export type Database = {
     Enums: {
       app_role: "admin" | "customer"
       greeting_type: "formal" | "muslim" | "nasrani" | "hindu" | "ultah"
+      order_status:
+        | "pending_payment"
+        | "payment_received"
+        | "in_progress"
+        | "completed"
       salutation_type: "to" | "dear" | "kepada"
     }
     CompositeTypes: {
@@ -304,6 +363,12 @@ export const Constants = {
     Enums: {
       app_role: ["admin", "customer"],
       greeting_type: ["formal", "muslim", "nasrani", "hindu", "ultah"],
+      order_status: [
+        "pending_payment",
+        "payment_received",
+        "in_progress",
+        "completed",
+      ],
       salutation_type: ["to", "dear", "kepada"],
     },
   },
