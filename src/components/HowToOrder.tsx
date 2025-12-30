@@ -29,7 +29,7 @@ const steps = [
 
 const HowToOrder = () => {
   return (
-    <section className="section-padding bg-background">
+    <section id="how-to-order" className="section-padding bg-background">
       <div className="container-custom">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
