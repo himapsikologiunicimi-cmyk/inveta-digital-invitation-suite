@@ -21,20 +21,46 @@ const Auth = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [checkingAuth, setCheckingAuth] = useState(true);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+
+  const checkUserRoleAndRedirect = async (userId: string) => {
+    // Check user role using the database function
+    const { data: role, error } = await supabase.rpc('get_user_role', { _user_id: userId });
+    
+    if (error) {
+      console.error("Error checking role:", error);
+      // Default to customer dashboard if role check fails
+      navigate("/customer-dashboard");
+      return;
+    }
+
+    if (role === 'admin') {
+      navigate("/dashboard");
+    } else {
+      navigate("/customer-dashboard");
+    }
+  };
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         if (session?.user) {
-          navigate("/dashboard");
+          // Use setTimeout to avoid deadlock
+          setTimeout(() => {
+            checkUserRoleAndRedirect(session.user.id);
+          }, 0);
+        } else {
+          setCheckingAuth(false);
         }
       }
     );
 
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
-        navigate("/dashboard");
+        checkUserRoleAndRedirect(session.user.id);
+      } else {
+        setCheckingAuth(false);
       }
     });
 
@@ -87,7 +113,7 @@ const Auth = () => {
           title: "Login Berhasil",
           description: "Selamat datang kembali!",
         });
-        navigate("/dashboard");
+        await checkUserRoleAndRedirect(data.user.id);
       }
     } catch (err) {
       toast({
@@ -100,10 +126,18 @@ const Auth = () => {
     }
   };
 
+  if (checkingAuth) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
+      </div>
+    );
+  }
+
   return (
     <>
       <Helmet>
-        <title>Login Admin | Inveta</title>
+        <title>Login | Inveta</title>
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
 
@@ -127,7 +161,7 @@ const Auth = () => {
           {/* Login Card */}
           <div className="bg-card rounded-2xl border border-border p-8 shadow-elevated">
             <h1 className="font-display text-2xl font-bold text-center text-foreground mb-6">
-              Login Admin
+              Login
             </h1>
 
             <form onSubmit={handleLogin} className="space-y-5">
@@ -138,7 +172,7 @@ const Auth = () => {
                   <Input
                     id="email"
                     type="email"
-                    placeholder="admin@inveta.id"
+                    placeholder="email@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className={`pl-10 ${errors.email ? "border-destructive" : ""}`}
