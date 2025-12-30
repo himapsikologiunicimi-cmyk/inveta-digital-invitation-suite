@@ -345,6 +345,29 @@ const CustomerDashboard = () => {
               </Button>
             </div>
 
+            {/* Auto-generated Invitation Link Info */}
+            {invitation && (
+              <div className="bg-primary/5 border border-primary/20 rounded-xl p-6 mb-8">
+                <div className="flex items-start gap-3">
+                  <LinkIcon className="w-5 h-5 text-primary mt-0.5" />
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-foreground mb-2">Link Undangan Anda</h3>
+                    <p className="text-sm text-muted-foreground mb-3">
+                      Gunakan template pesan di bawah untuk membagikan undangan ke tamu Anda:
+                    </p>
+                    <div className="bg-card rounded-lg p-4 border border-border">
+                      <p className="text-sm font-mono break-all mb-3">
+                        {window.location.origin}/invitation/{invitation.id}/[nama-tamu]
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        *[nama-tamu] akan otomatis diganti dengan nama masing-masing tamu
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Guest List View */}
             {showGuestList && guests.length > 0 ? (
               <div className="space-y-6">
