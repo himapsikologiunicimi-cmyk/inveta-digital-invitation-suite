@@ -307,13 +307,16 @@ Mohon dicek dan diproses. Terima kasih.`
                       <span>{formatPrice(orderData.theme.price)}</span>
                     </div>
                     {orderData.addOnDetails && orderData.addOnDetails.length > 0 && (
-                      <div className="py-2 border-b border-border space-y-1">
-                        {orderData.addOnDetails.map((addon) => (
-                          <div key={addon.id} className="flex justify-between">
-                            <span className="text-muted-foreground">{addon.name}</span>
-                            <span>{formatPrice(addon.price)}</span>
-                          </div>
-                        ))}
+                      <div className="py-2 border-b border-border">
+                        <span className="text-muted-foreground font-medium">Add On</span>
+                        <div className="mt-1 space-y-1">
+                          {orderData.addOnDetails.map((addon) => (
+                            <div key={addon.id} className="flex justify-between pl-4">
+                              <span className="text-muted-foreground">{addon.name}</span>
+                              <span>{formatPrice(addon.price)}</span>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     )}
                     {orderData.discount > 0 && (
@@ -323,12 +326,12 @@ Mohon dicek dan diproses. Terima kasih.`
                       </div>
                     )}
                     <div className="flex justify-between py-2 border-b border-border">
-                      <span className="text-muted-foreground">Subtotal</span>
-                      <span>{formatPrice(orderData.subtotal)}</span>
-                    </div>
-                    <div className="flex justify-between py-2 border-b border-border">
                       <span className="text-muted-foreground">Kode Unik</span>
                       <span>{formatPrice(orderData.uniqueCode)}</span>
+                    </div>
+                    <div className="flex justify-between py-2 border-b border-border">
+                      <span className="text-muted-foreground">Subtotal</span>
+                      <span>{formatPrice(orderData.subtotal)}</span>
                     </div>
                     <div className="flex justify-between pt-3 border-t border-border">
                       <span className="font-semibold text-lg">Total Bayar</span>
