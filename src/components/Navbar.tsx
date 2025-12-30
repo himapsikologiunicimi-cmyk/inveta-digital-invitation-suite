@@ -9,7 +9,7 @@ const navLinks = [
   { name: "Home", path: "/" },
   { name: "Katalog", path: "/#katalog" },
   { name: "Client", path: "/#client" },
-  { name: "Tutorial", path: "/#tutorial" },
+  { name: "Tutorial", path: "/#how-to-order" },
   { name: "Hubungi Admin", path: "/#contact" },
 ];
 
@@ -74,7 +74,7 @@ const Navbar = () => {
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled
           ? "bg-card shadow-card py-3"
-          : "bg-transparent py-5"
+          : "bg-card py-5"
       }`}
     >
       <div className="container-custom flex items-center justify-between">
