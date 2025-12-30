@@ -9,7 +9,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
-import { themes, Theme } from "@/pages/Katalog";
+import { themes, Theme } from "@/components/CatalogSection";
 import {
   Check,
   Clock,

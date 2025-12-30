@@ -5,7 +5,9 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import Index from "./pages/Index";
-import Katalog from "./pages/Katalog";
+import Auth from "./pages/Auth";
+import Dashboard from "./pages/Dashboard";
+import GuestList from "./pages/GuestList";
 import Order from "./pages/Order";
 import Invoice from "./pages/Invoice";
 import NotFound from "./pages/NotFound";
@@ -21,7 +23,9 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
-            <Route path="/katalog" element={<Katalog />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/guest-list/:invitationId" element={<GuestList />} />
             <Route path="/order/:themeId" element={<Order />} />
             <Route path="/invoice" element={<Invoice />} />
             <Route path="*" element={<NotFound />} />
