@@ -270,10 +270,7 @@ Mohon dicek dan diproses. Terima kasih.`
                         <span className="text-muted-foreground">Add On:</span>
                         <div className="mt-2 space-y-1">
                           {orderData.addOnDetails.map((addon) => (
-                            <div key={addon.id} className="flex justify-between text-sm">
-                              <span className="text-foreground">• {addon.name}</span>
-                              <span className="font-medium">{formatPrice(addon.price)}</span>
-                            </div>
+                            <span key={addon.id} className="text-foreground text-sm block">• {addon.name}</span>
                           ))}
                         </div>
                       </div>
@@ -319,12 +316,6 @@ Mohon dicek dan diproses. Terima kasih.`
                         </div>
                       </div>
                     )}
-                    {orderData.discount > 0 && (
-                      <div className="flex justify-between py-2 border-b border-border text-primary">
-                        <span>Diskon</span>
-                        <span>- {formatPrice(orderData.discount)}</span>
-                      </div>
-                    )}
                     <div className="flex justify-between py-2 border-b border-border">
                       <span className="text-muted-foreground">Kode Unik</span>
                       <span>{formatPrice(orderData.uniqueCode)}</span>
@@ -333,6 +324,12 @@ Mohon dicek dan diproses. Terima kasih.`
                       <span className="text-muted-foreground">Subtotal</span>
                       <span>{formatPrice(orderData.subtotal)}</span>
                     </div>
+                    {orderData.discount > 0 && (
+                      <div className="flex justify-between py-2 border-b border-border text-primary">
+                        <span>Diskon</span>
+                        <span>- {formatPrice(orderData.discount)}</span>
+                      </div>
+                    )}
                     <div className="flex justify-between pt-3 border-t border-border">
                       <span className="font-semibold text-lg">Total Bayar</span>
                       <span className="font-bold text-xl text-primary">
