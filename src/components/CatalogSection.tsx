@@ -81,7 +81,12 @@ export const themes: Theme[] = [
   },
 ];
 
-export const categories = ["Semua", "Minimalis", "Premium", "Rustic", "Tropis", "Klasik"];
+export const categories = ["Minimalis", "Premium", "Rustic", "Tropis", "Klasik"];
+
+// Get count of themes per category
+export const getCategoryCount = (category: string) => {
+  return themes.filter((theme) => theme.category === category).length;
+};
 
 export const formatPrice = (price: number) => {
   return new Intl.NumberFormat("id-ID", {
@@ -97,11 +102,11 @@ interface CatalogSectionProps {
 
 const CatalogSection = ({ showHeader = true }: CatalogSectionProps) => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeCategory, setActiveCategory] = useState("Semua");
+  const [activeCategory, setActiveCategory] = useState(categories[0]);
 
   const filteredThemes = themes.filter((theme) => {
     const matchesSearch = theme.name.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = activeCategory === "Semua" || theme.category === activeCategory;
+    const matchesCategory = theme.category === activeCategory;
     return matchesSearch && matchesCategory;
   });
 
@@ -148,7 +153,7 @@ const CatalogSection = ({ showHeader = true }: CatalogSectionProps) => {
                     : "bg-card border border-border text-foreground hover:border-primary/30"
                 }`}
               >
-                {category}
+                {category} ({getCategoryCount(category)})
               </button>
             ))}
           </div>
@@ -185,17 +190,6 @@ const CatalogSection = ({ showHeader = true }: CatalogSectionProps) => {
                     </span>
                   </div>
 
-                  {/* Hover Actions */}
-                  <div className="absolute bottom-4 left-4 right-4 opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-300 space-y-2">
-                    <Button
-                      variant="hero-secondary"
-                      size="sm"
-                      className="w-full gap-2"
-                    >
-                      <Eye className="w-4 h-4" />
-                      Lihat Contoh
-                    </Button>
-                  </div>
                 </div>
 
                 {/* Content */}
@@ -222,7 +216,7 @@ const CatalogSection = ({ showHeader = true }: CatalogSectionProps) => {
                   </div>
 
                   {/* Price */}
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between mb-4">
                     <div>
                       <span className="text-muted-foreground line-through text-sm block">
                         {formatPrice(theme.originalPrice)}
@@ -231,8 +225,16 @@ const CatalogSection = ({ showHeader = true }: CatalogSectionProps) => {
                         {formatPrice(theme.price)}
                       </span>
                     </div>
-                    <Button variant="hero" size="default" asChild>
-                      <Link to={`/order/${theme.id}`}>Pesan</Link>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" className="flex-1 gap-2">
+                      <Eye className="w-4 h-4" />
+                      Lihat Contoh
+                    </Button>
+                    <Button variant="hero" size="sm" className="flex-1" asChild>
+                      <Link to={`/order/${theme.id}`}>Pesan Tema</Link>
                     </Button>
                   </div>
                 </div>

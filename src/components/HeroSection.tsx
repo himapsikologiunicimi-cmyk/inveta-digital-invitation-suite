@@ -1,9 +1,17 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ChevronDown } from "lucide-react";
 import heroBg from "@/assets/hero-bg.jpg";
 
 const HeroSection = () => {
+  const navigate = useNavigate();
+
+  const scrollToKatalog = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const element = document.getElementById("katalog");
+    element?.scrollIntoView({ behavior: "smooth" });
+  };
+
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Background Image */}
@@ -35,11 +43,11 @@ const HeroSection = () => {
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up delay-300">
-            <Button variant="gold" size="xl" asChild>
-              <Link to="/katalog">Lihat Katalog</Link>
+            <Button variant="gold" size="xl" onClick={scrollToKatalog}>
+              Lihat Katalog
             </Button>
-            <Button variant="hero-secondary" size="xl" asChild>
-              <Link to="/katalog">Pesan Sekarang</Link>
+            <Button variant="hero-secondary" size="xl" onClick={scrollToKatalog}>
+              Pesan Sekarang
             </Button>
           </div>
 
