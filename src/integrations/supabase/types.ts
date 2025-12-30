@@ -14,7 +14,125 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      greeting_templates: {
+        Row: {
+          created_at: string | null
+          id: string
+          template: string
+          type: Database["public"]["Enums"]["greeting_type"]
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          template: string
+          type: Database["public"]["Enums"]["greeting_type"]
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          template?: string
+          type?: Database["public"]["Enums"]["greeting_type"]
+        }
+        Relationships: []
+      }
+      guests: {
+        Row: {
+          created_at: string | null
+          id: string
+          invitation_id: string
+          name: string
+          shared_via: string[] | null
+          slug: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          invitation_id: string
+          name: string
+          shared_via?: string[] | null
+          slug: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          invitation_id?: string
+          name?: string
+          shared_via?: string[] | null
+          slug?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guests_invitation_id_fkey"
+            columns: ["invitation_id"]
+            isOneToOne: false
+            referencedRelation: "invitations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      invitations: {
+        Row: {
+          created_at: string | null
+          custom_message: string | null
+          greeting_type: Database["public"]["Enums"]["greeting_type"] | null
+          id: string
+          salutation: Database["public"]["Enums"]["salutation_type"] | null
+          theme_id: number
+          theme_name: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          custom_message?: string | null
+          greeting_type?: Database["public"]["Enums"]["greeting_type"] | null
+          id?: string
+          salutation?: Database["public"]["Enums"]["salutation_type"] | null
+          theme_id: number
+          theme_name: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          custom_message?: string | null
+          greeting_type?: Database["public"]["Enums"]["greeting_type"] | null
+          id?: string
+          salutation?: Database["public"]["Enums"]["salutation_type"] | null
+          theme_id?: number
+          theme_name?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string | null
+          email: string | null
+          full_name: string | null
+          id: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email?: string | null
+          full_name?: string | null
+          id: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +141,8 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      greeting_type: "formal" | "muslim" | "nasrani" | "hindu" | "ultah"
+      salutation_type: "to" | "dear" | "kepada"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +269,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      greeting_type: ["formal", "muslim", "nasrani", "hindu", "ultah"],
+      salutation_type: ["to", "dear", "kepada"],
+    },
   },
 } as const

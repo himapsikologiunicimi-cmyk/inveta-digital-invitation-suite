@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { User } from "@supabase/supabase-js";
 
 const navLinks = [
   { name: "Home", path: "/" },
-  { name: "Katalog", path: "/katalog" },
+  { name: "Katalog", path: "/#katalog" },
   { name: "Client", path: "/#client" },
   { name: "Tutorial", path: "/#tutorial" },
   { name: "Hubungi Admin", path: "/#contact" },
@@ -14,7 +16,9 @@ const navLinks = [
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
   const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -27,6 +31,43 @@ const Navbar = () => {
   useEffect(() => {
     setIsMobileMenuOpen(false);
   }, [location]);
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setUser(session?.user ?? null);
+      }
+    );
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, path: string) => {
+    if (path.startsWith("/#")) {
+      e.preventDefault();
+      const elementId = path.substring(2);
+      
+      if (location.pathname !== "/") {
+        navigate("/");
+        setTimeout(() => {
+          const element = document.getElementById(elementId);
+          element?.scrollIntoView({ behavior: "smooth" });
+        }, 100);
+      } else {
+        const element = document.getElementById(elementId);
+        element?.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate("/");
+  };
 
   return (
     <header
@@ -50,28 +91,44 @@ const Navbar = () => {
         {/* Desktop Navigation */}
         <nav className="hidden lg:flex items-center gap-8">
           {navLinks.map((link) => (
-            <Link
+            <a
               key={link.name}
-              to={link.path}
+              href={link.path}
+              onClick={(e) => handleNavClick(e, link.path)}
               className={`font-body font-medium transition-colors hover:text-primary ${
-                location.pathname === link.path
+                location.pathname === link.path || (link.path.startsWith("/#") && location.pathname === "/")
                   ? "text-primary"
                   : "text-foreground/80"
               }`}
             >
               {link.name}
-            </Link>
+            </a>
           ))}
         </nav>
 
         {/* Desktop CTAs */}
         <div className="hidden lg:flex items-center gap-4">
-          <Button variant="ghost" size="sm">
-            Login
-          </Button>
-          <Button variant="hero" size="default" asChild>
-            <Link to="/katalog">Pesan Sekarang</Link>
-          </Button>
+          {user ? (
+            <>
+              <Button variant="ghost" size="sm" asChild>
+                <Link to="/dashboard">Dashboard</Link>
+              </Button>
+              <Button variant="outline" size="sm" onClick={handleLogout}>
+                Logout
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button variant="ghost" size="sm" asChild>
+                <Link to="/auth">Login</Link>
+              </Button>
+              <Button variant="hero" size="default" asChild>
+                <a href="/#katalog" onClick={(e) => handleNavClick(e, "/#katalog")}>
+                  Pesan Sekarang
+                </a>
+              </Button>
+            </>
+          )}
         </div>
 
         {/* Mobile Menu Button */}
@@ -94,9 +151,10 @@ const Navbar = () => {
       >
         <nav className="container-custom py-6 flex flex-col gap-4">
           {navLinks.map((link) => (
-            <Link
+            <a
               key={link.name}
-              to={link.path}
+              href={link.path}
+              onClick={(e) => handleNavClick(e, link.path)}
               className={`font-body font-medium text-lg py-2 transition-colors ${
                 location.pathname === link.path
                   ? "text-primary"
@@ -104,15 +162,30 @@ const Navbar = () => {
               }`}
             >
               {link.name}
-            </Link>
+            </a>
           ))}
           <div className="flex flex-col gap-3 pt-4 border-t border-border">
-            <Button variant="outline" className="w-full">
-              Login
-            </Button>
-            <Button variant="hero" className="w-full" asChild>
-              <Link to="/katalog">Pesan Sekarang</Link>
-            </Button>
+            {user ? (
+              <>
+                <Button variant="outline" className="w-full" asChild>
+                  <Link to="/dashboard">Dashboard</Link>
+                </Button>
+                <Button variant="ghost" className="w-full" onClick={handleLogout}>
+                  Logout
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button variant="outline" className="w-full" asChild>
+                  <Link to="/auth">Login</Link>
+                </Button>
+                <Button variant="hero" className="w-full" asChild>
+                  <a href="/#katalog" onClick={(e) => handleNavClick(e, "/#katalog")}>
+                    Pesan Sekarang
+                  </a>
+                </Button>
+              </>
+            )}
           </div>
         </nav>
       </div>
