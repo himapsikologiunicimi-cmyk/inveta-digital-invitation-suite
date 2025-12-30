@@ -17,13 +17,28 @@ import {
   Gift,
   ShieldCheck,
   Tag,
+  ChevronDown,
 } from "lucide-react";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 
 const addOns = [
+  { id: "tambah-5-foto", name: "Tambah 5 Foto", price: 25000 },
+  { id: "tambah-video", name: "Tambah Video", price: 50000 },
   { id: "custom-domain", name: "Custom Domain", price: 150000 },
   { id: "extra-3-months", name: "Perpanjang 3 Bulan", price: 50000 },
   { id: "extra-6-months", name: "Perpanjang 6 Bulan", price: 75000 },
   { id: "live-streaming", name: "Fitur Live Streaming", price: 100000 },
+];
+
+const banks = [
+  { id: "bca", name: "BCA", number: "1234567890", holder: "PT Inveta Digital Indonesia" },
+  { id: "mandiri", name: "Mandiri", number: "9876543210", holder: "PT Inveta Digital Indonesia" },
+  { id: "bni", name: "BNI", number: "0987654321", holder: "PT Inveta Digital Indonesia" },
+  { id: "bri", name: "BRI", number: "1122334455", holder: "PT Inveta Digital Indonesia" },
 ];
 
 const formatPrice = (price: number) => {
@@ -50,16 +65,20 @@ const generateUniqueCode = () => {
 export interface OrderData {
   theme: Theme;
   addOns: string[];
+  addOnDetails: { id: string; name: string; price: number }[];
   customerName: string;
   customerEmail: string;
   customerPhone: string;
   paymentMethod: string;
+  selectedBank: string | null;
   couponCode: string;
   orderCode: string;
   uniqueCode: number;
   subtotal: number;
   discount: number;
   total: number;
+  orderDate: string;
+  orderDeadline: string;
 }
 
 const Order = () => {
@@ -71,6 +90,8 @@ const Order = () => {
   const [customerEmail, setCustomerEmail] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("bank");
+  const [selectedBank, setSelectedBank] = useState<string | null>(null);
+  const [isBankOpen, setIsBankOpen] = useState(false);
   const [couponCode, setCouponCode] = useState("");
   const [discount, setDiscount] = useState(0);
   const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
@@ -102,7 +123,6 @@ const Order = () => {
 
   const handleApplyCoupon = () => {
     setIsApplyingCoupon(true);
-    // Simulate coupon validation
     setTimeout(() => {
       if (couponCode.toUpperCase() === "DISKON10") {
         setDiscount(calculateSubtotal() * 0.1);
@@ -126,22 +146,37 @@ const Order = () => {
       return;
     }
 
+    if (paymentMethod === "bank" && !selectedBank) {
+      return;
+    }
+
+    const now = new Date();
+    const deadline = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+
+    const addOnDetails = selectedAddOns.map((id) => {
+      const addOn = addOns.find((a) => a.id === id);
+      return addOn ? { id: addOn.id, name: addOn.name, price: addOn.price } : null;
+    }).filter(Boolean) as { id: string; name: string; price: number }[];
+
     const orderData: OrderData = {
       theme: selectedTheme,
       addOns: selectedAddOns,
+      addOnDetails,
       customerName,
       customerEmail,
       customerPhone,
       paymentMethod,
+      selectedBank: paymentMethod === "bank" ? selectedBank : null,
       couponCode,
       orderCode: generateOrderCode(),
       uniqueCode,
       subtotal,
       discount,
       total,
+      orderDate: now.toISOString(),
+      orderDeadline: deadline.toISOString(),
     };
 
-    // Store order data and navigate to invoice
     sessionStorage.setItem("orderData", JSON.stringify(orderData));
     navigate("/invoice");
   };
@@ -153,6 +188,54 @@ const Order = () => {
       </div>
     );
   }
+
+  const OrderSummary = () => (
+    <div className="bg-card rounded-2xl border border-border p-6">
+      <h2 className="heading-sm text-foreground mb-6">Ringkasan Pesanan</h2>
+
+      <div className="space-y-4 pb-4 border-b border-border">
+        <div className="flex justify-between">
+          <span className="text-muted-foreground">{selectedTheme.name}</span>
+          <span className="font-medium">{formatPrice(selectedTheme.price)}</span>
+        </div>
+        {selectedAddOns.map((id) => {
+          const addOn = addOns.find((a) => a.id === id);
+          return (
+            addOn && (
+              <div key={id} className="flex justify-between">
+                <span className="text-muted-foreground">{addOn.name}</span>
+                <span className="font-medium">+ {formatPrice(addOn.price)}</span>
+              </div>
+            )
+          );
+        })}
+      </div>
+
+      <div className="space-y-3 py-4 border-b border-border">
+        <div className="flex justify-between">
+          <span className="text-muted-foreground">Subtotal</span>
+          <span className="font-medium">{formatPrice(subtotal)}</span>
+        </div>
+        {discount > 0 && (
+          <div className="flex justify-between text-primary">
+            <span>Diskon</span>
+            <span>- {formatPrice(discount)}</span>
+          </div>
+        )}
+        <div className="flex justify-between">
+          <span className="text-muted-foreground">Kode Unik</span>
+          <span className="font-medium">{formatPrice(uniqueCode)}</span>
+        </div>
+      </div>
+
+      <div className="flex justify-between pt-4">
+        <span className="font-semibold text-lg">Total Bayar</span>
+        <span className="font-bold text-xl text-primary">
+          {formatPrice(total)}
+        </span>
+      </div>
+    </div>
+  );
 
   return (
     <>
@@ -289,6 +372,9 @@ const Order = () => {
                           className="mt-2"
                           required
                         />
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Email harus aktif untuk menerima informasi pesanan
+                        </p>
                       </div>
                       <div>
                         <Label htmlFor="phone">Nomor WhatsApp *</Label>
@@ -301,6 +387,9 @@ const Order = () => {
                           className="mt-2"
                           required
                         />
+                        <p className="text-xs text-destructive mt-1">
+                          WhatsApp harus aktif, jangan salah tulis nomor WA!
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -312,21 +401,67 @@ const Order = () => {
                       <h2 className="heading-sm text-foreground">Metode Pembayaran</h2>
                     </div>
 
-                    <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod}>
-                      <div className="grid sm:grid-cols-2 gap-4">
-                        <div
-                          className={`flex items-center gap-3 p-4 rounded-xl border cursor-pointer transition-colors ${
-                            paymentMethod === "bank"
-                              ? "border-primary bg-primary/5"
-                              : "border-border hover:border-primary/30"
-                          }`}
-                          onClick={() => setPaymentMethod("bank")}
-                        >
-                          <RadioGroupItem value="bank" id="bank" />
-                          <Label htmlFor="bank" className="cursor-pointer">
-                            Transfer Bank
-                          </Label>
-                        </div>
+                    <RadioGroup value={paymentMethod} onValueChange={(value) => {
+                      setPaymentMethod(value);
+                      if (value === "qris") {
+                        setSelectedBank(null);
+                        setIsBankOpen(false);
+                      }
+                    }}>
+                      <div className="space-y-4">
+                        {/* Bank Transfer Option */}
+                        <Collapsible open={isBankOpen} onOpenChange={setIsBankOpen}>
+                          <div
+                            className={`rounded-xl border transition-colors ${
+                              paymentMethod === "bank"
+                                ? "border-primary bg-primary/5"
+                                : "border-border hover:border-primary/30"
+                            }`}
+                          >
+                            <CollapsibleTrigger asChild>
+                              <div
+                                className="flex items-center justify-between p-4 cursor-pointer"
+                                onClick={() => {
+                                  setPaymentMethod("bank");
+                                  setIsBankOpen(true);
+                                }}
+                              >
+                                <div className="flex items-center gap-3">
+                                  <RadioGroupItem value="bank" id="bank" />
+                                  <Label htmlFor="bank" className="cursor-pointer">
+                                    Transfer Bank
+                                  </Label>
+                                </div>
+                                <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${isBankOpen ? "rotate-180" : ""}`} />
+                              </div>
+                            </CollapsibleTrigger>
+                            <CollapsibleContent>
+                              <div className="px-4 pb-4 space-y-2">
+                                {banks.map((bank) => (
+                                  <div
+                                    key={bank.id}
+                                    onClick={() => setSelectedBank(bank.id)}
+                                    className={`p-3 rounded-lg border cursor-pointer transition-colors ${
+                                      selectedBank === bank.id
+                                        ? "border-primary bg-primary/10"
+                                        : "border-border hover:border-primary/30"
+                                    }`}
+                                  >
+                                    <div className="flex items-center justify-between">
+                                      <span className="font-medium text-foreground">{bank.name}</span>
+                                      {selectedBank === bank.id && (
+                                        <Check className="w-4 h-4 text-primary" />
+                                      )}
+                                    </div>
+                                    <p className="text-sm text-muted-foreground">{bank.number}</p>
+                                  </div>
+                                ))}
+                              </div>
+                            </CollapsibleContent>
+                          </div>
+                        </Collapsible>
+
+                        {/* QRIS Option */}
                         <div
                           className={`flex items-center gap-3 p-4 rounded-xl border cursor-pointer transition-colors ${
                             paymentMethod === "qris"
@@ -375,8 +510,15 @@ const Order = () => {
                   </div>
 
                   {/* Mobile Order Summary & Submit */}
-                  <div className="lg:hidden">
-                    <Button type="submit" variant="hero" size="xl" className="w-full">
+                  <div className="lg:hidden space-y-4">
+                    <OrderSummary />
+                    <Button 
+                      type="submit" 
+                      variant="hero" 
+                      size="xl" 
+                      className="w-full"
+                      disabled={!customerName || !customerEmail || !customerPhone || (paymentMethod === "bank" && !selectedBank)}
+                    >
                       Order Sekarang
                     </Button>
                   </div>
@@ -384,66 +526,29 @@ const Order = () => {
               </div>
 
               {/* Right - Order Summary (Sticky) */}
-              <div className="lg:col-span-1">
-                <div className="sticky top-28 bg-card rounded-2xl border border-border p-6">
-                  <h2 className="heading-sm text-foreground mb-6">Ringkasan Pesanan</h2>
-
-                  <div className="space-y-4 pb-4 border-b border-border">
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">{selectedTheme.name}</span>
-                      <span className="font-medium">{formatPrice(selectedTheme.price)}</span>
-                    </div>
-                    {selectedAddOns.map((id) => {
-                      const addOn = addOns.find((a) => a.id === id);
-                      return (
-                        addOn && (
-                          <div key={id} className="flex justify-between">
-                            <span className="text-muted-foreground">{addOn.name}</span>
-                            <span className="font-medium">+ {formatPrice(addOn.price)}</span>
-                          </div>
-                        )
-                      );
-                    })}
-                  </div>
-
-                  <div className="space-y-3 py-4 border-b border-border">
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Subtotal</span>
-                      <span className="font-medium">{formatPrice(subtotal)}</span>
-                    </div>
-                    {discount > 0 && (
-                      <div className="flex justify-between text-primary">
-                        <span>Diskon</span>
-                        <span>- {formatPrice(discount)}</span>
-                      </div>
-                    )}
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Kode Unik</span>
-                      <span className="font-medium">{formatPrice(uniqueCode)}</span>
-                    </div>
-                  </div>
-
-                  <div className="flex justify-between pt-4 mb-6">
-                    <span className="font-semibold text-lg">Total Bayar</span>
-                    <span className="font-bold text-xl text-primary">
-                      {formatPrice(total)}
-                    </span>
-                  </div>
-
+              <div className="lg:col-span-1 hidden lg:block">
+                <div className="sticky top-28 space-y-4">
+                  <OrderSummary />
                   <Button
                     type="submit"
                     variant="hero"
                     size="lg"
-                    className="w-full hidden lg:flex"
+                    className="w-full"
                     onClick={handleSubmit}
-                    disabled={!customerName || !customerEmail || !customerPhone}
+                    disabled={!customerName || !customerEmail || !customerPhone || (paymentMethod === "bank" && !selectedBank)}
                   >
                     Order Sekarang
                   </Button>
 
-                  <p className="mt-4 text-xs text-center text-muted-foreground">
-                    Dengan melakukan order, Anda menyetujui Syarat & Ketentuan kami
-                  </p>
+                  <div className="text-center space-y-2 pt-4">
+                    <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+                      <ShieldCheck className="w-4 h-4 text-primary" />
+                      <span>Transaksi 100% Aman</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Data Anda dilindungi dan tidak akan dibagikan
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
