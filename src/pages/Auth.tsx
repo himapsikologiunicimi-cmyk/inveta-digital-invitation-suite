@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Eye, EyeOff, Lock, Mail } from "lucide-react";
+import { Eye, EyeOff, Lock, Mail, Settings } from "lucide-react";
 import { z } from "zod";
 
 const loginSchema = z.object({
@@ -21,8 +21,49 @@ const Auth = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSettingUpAdmin, setIsSettingUpAdmin] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+
+  const handleSetupAdmin = async () => {
+    setIsSettingUpAdmin(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('create-admin');
+      
+      if (error) {
+        toast({
+          variant: "destructive",
+          title: "Setup Gagal",
+          description: error.message,
+        });
+        return;
+      }
+
+      if (data?.success) {
+        toast({
+          title: "Setup Berhasil",
+          description: data.message || "Akun admin berhasil dibuat. Silakan login.",
+        });
+        // Pre-fill admin credentials
+        setEmail("admin@inveta.id");
+        setPassword("Ikurniawan1502");
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Setup Gagal",
+          description: data?.error || "Terjadi kesalahan",
+        });
+      }
+    } catch (err) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Gagal menghubungi server",
+      });
+    } finally {
+      setIsSettingUpAdmin(false);
+    }
+  };
 
   const checkUserRoleAndRedirect = async (userId: string) => {
     // Check user role using the database function
@@ -221,12 +262,31 @@ const Auth = () => {
               </Button>
             </form>
 
-            <p className="mt-6 text-center text-sm text-muted-foreground">
-              Belum punya akun?{" "}
-              <a href="/#contact" className="text-primary hover:underline">
-                Hubungi Admin
-              </a>
-            </p>
+            <div className="mt-6 space-y-3">
+              <p className="text-center text-sm text-muted-foreground">
+                Belum punya akun?{" "}
+                <a href="/#contact" className="text-primary hover:underline">
+                  Hubungi Admin
+                </a>
+              </p>
+              
+              <div className="border-t border-border pt-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="w-full"
+                  onClick={handleSetupAdmin}
+                  disabled={isSettingUpAdmin}
+                >
+                  <Settings className="w-4 h-4 mr-2" />
+                  {isSettingUpAdmin ? "Menyiapkan..." : "Setup Admin (Pertama Kali)"}
+                </Button>
+                <p className="mt-2 text-xs text-muted-foreground text-center">
+                  Klik untuk membuat akun admin pertama kali
+                </p>
+              </div>
+            </div>
           </div>
 
           {/* Back to Home */}
