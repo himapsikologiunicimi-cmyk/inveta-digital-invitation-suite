@@ -44,7 +44,11 @@ import {
   Eye,
   EyeOff,
   LogOut,
+  Palette,
+  Ticket,
 } from "lucide-react";
+import ThemesManager from "@/components/admin/ThemesManager";
+import CouponsManager from "@/components/admin/CouponsManager";
 import { User, Session } from "@supabase/supabase-js";
 import { z } from "zod";
 
@@ -470,6 +474,14 @@ const AdminDashboard = () => {
                   <Plus className="w-4 h-4" />
                   Buat Akun Customer
                 </TabsTrigger>
+                <TabsTrigger value="themes" className="gap-2">
+                  <Palette className="w-4 h-4" />
+                  Kelola Tema
+                </TabsTrigger>
+                <TabsTrigger value="coupons" className="gap-2">
+                  <Ticket className="w-4 h-4" />
+                  Kelola Kupon
+                </TabsTrigger>
               </TabsList>
 
               {/* Payments Tab */}
@@ -706,6 +718,16 @@ const AdminDashboard = () => {
                     </p>
                   </div>
                 </div>
+              </TabsContent>
+
+              {/* Themes Tab */}
+              <TabsContent value="themes">
+                <ThemesManager />
+              </TabsContent>
+
+              {/* Coupons Tab */}
+              <TabsContent value="coupons">
+                <CouponsManager />
               </TabsContent>
             </Tabs>
 
